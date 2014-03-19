@@ -1,15 +1,23 @@
 package sergei.magebane.main;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
 import android.view.Menu;
 
 public class MainActivity extends Activity {
-
+	private GameView gameView;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_activity);
+		
+		init(this);
+		setContentView(gameView);
+	}
+	
+	private void init(Context context){
+		gameView = new GameView(context);
 	}
 
 	@Override

@@ -1,9 +1,11 @@
 package sergei.magebane.main;
 
+import sergei.magebane.view.GameView;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.WindowManager;
 
 public class MainActivity extends Activity {
 	private GameView gameView;
@@ -11,6 +13,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //make screen always on
 		
 		init(this);
 		setContentView(gameView);

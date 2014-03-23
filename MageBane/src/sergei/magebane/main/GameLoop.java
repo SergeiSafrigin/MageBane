@@ -1,18 +1,17 @@
 package sergei.magebane.main;
 
-import sergei.magebane.view.GameView;
-import android.graphics.Canvas;
+import java.util.Vector;
+
 import android.util.Log;
 
 public class GameLoop extends Thread {
 	private static final String TAG = "Game Loop";
 	private static final int FPS = 100;
-	private GameView gameView;
 	private boolean finished;
-	
-	
-	public GameLoop(GameView gameView){
-		this.gameView = gameView;
+	private Vector<sergei.magebane.entitysystem.Systems.System> systems;
+
+	public GameLoop(Vector<sergei.magebane.entitysystem.Systems.System> systems){
+		this.systems = systems;
 	}
 	
 	@Override
@@ -20,25 +19,19 @@ public class GameLoop extends Thread {
 		finished = false;
 		loop();
 	}
-	
+
+
 	private void loop(){
 		long ticksPS = 1000 / FPS;
-		
+
 		long startTime;
 		long sleepTime;
-		
+
 		while(!finished){
 			startTime = System.currentTimeMillis();
-			Canvas canvas = null;
-			try{
-				canvas = gameView.getHolder().lockCanvas();
-				synchronized (gameView.getHolder()) {
-					gameView.draw(canvas);
-				}
-			} finally {
-				if (canvas != null) {
-					gameView.getHolder().unlockCanvasAndPost(canvas);
-				}
+			
+			for(sergei.magebane.entitysystem.Systems.System system: systems){
+				system.update();
 			}
 			
 			sleepTime = ticksPS - (System.currentTimeMillis() - startTime);
@@ -50,11 +43,9 @@ public class GameLoop extends Thread {
 			} catch (InterruptedException e) {
 				Log.e(TAG,""+e.toString());
 			}
-			
-			
 		}
 	}
-	
+
 	public void onPause(){
 		finished = true;
 	}

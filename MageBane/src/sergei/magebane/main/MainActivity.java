@@ -4,11 +4,16 @@ import sergei.magebane.view.GameView;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
+	private static final String TAG = "Main Activity";
 	private GameView gameView;
+	private World world;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +26,7 @@ public class MainActivity extends Activity {
 	
 	private void init(Context context){
 		gameView = new GameView(context);
+		world = new World(gameView, getResources());
 	}
 
 	@Override
@@ -29,5 +35,16 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
+	
+	
+	public void onPause(){
+		super.onPause();
+		world.onPause();
+	}
+	
+	public void onResume(){
+		super.onResume();
+		world.onResume();
+	}
+	
 }

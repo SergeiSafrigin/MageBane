@@ -1,33 +1,23 @@
 package sergei.magebane.entitysystem.framework;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import sergei.magebane.entitysystem.framework.components.Component;
-import sergei.magebane.entitysystem.framework.components.ComponentsByClass;
 
 public class EntityManager {
-	private static final String TAG = EntityManager.class.getName();
+	private static final String TAG = "Entity Manager";
 	private int lowestUnassignedEid;
-	private Vector<Vector<Component>> componentsByEntities;
-	private Vector<ComponentsByClass> componentsByClass;
+	private Vector<HashMap<String, Component>> componentsByEntities;
 	private Vector<Entity> entities;
 
 	public EntityManager(){
-		componentsByEntities = new Vector<Vector<Component>>();
-		componentsByClass = new Vector<ComponentsByClass>();
+		componentsByEntities = new Vector<HashMap<String, Component>>();
 		entities = new Vector<Entity>();
 	}
 
-	public Vector<Vector<Component>> getComponentsByEntities(){
+	public Vector<HashMap<String, Component>> getComponentsByEntities(){
 		return componentsByEntities;
-	}
-
-	public ComponentsByClass getComponentsByClass(String name){
-		for(ComponentsByClass components: componentsByClass){
-			if (name.equals(components.getName()))
-				return components;
-		}
-		return null;
 	}
 
 	public int generateNewEid(){
@@ -43,51 +33,21 @@ public class EntityManager {
 	}
 
 	public Entity createEntity(){
-		int eid = generateNewEid();
+		componentsByEntities.add(new HashMap<String, Component>());
+		
+		int eid = componentsByEntities.size()-1;
 		Entity entity = new Entity(eid);
 		entities.add(entity);
 		return entity;
 	}
 
-	public void addComponent(Component component){
-		//adds the component to componentsByEntities
-		boolean found = false;
-		for(Vector<Component> components: componentsByEntities){
-			if (components.get(0).getEid() == component.getEid()){
-				components.add(component);
-				found = true;
-				break;
-			}
+	public void addComponent(Component component){		
+		if (componentsByEntities.size() > component.getEid())
+			componentsByEntities.get(component.getEid()).put(component.getName(), component);
+		else{
+			HashMap<String, Component> newHashMap = new HashMap<String, Component>();
+			newHashMap.put(component.getName(), component);
+			componentsByEntities.add(newHashMap);
 		}
-		if (!found){
-			Vector<Component> newComponentByEntity = new Vector<Component>();
-			newComponentByEntity.add(component);
-			componentsByEntities.add(newComponentByEntity);
-		}
-
-		//adds the component to componentsByClass
-		found = false;
-		for(ComponentsByClass componentByClass: componentsByClass){
-			if (componentByClass.getName().equals(component.getName())){
-				componentByClass.components.add(component);
-				found = true;
-				break;
-			}
-		}
-
-		if (!found){
-			ComponentsByClass newComponentClass = new ComponentsByClass(component.getName());
-			newComponentClass.components.add(component);
-			componentsByClass.add(newComponentClass);
-		}
-
-	}
-
-	public Vector<Component> getComponentsByEntity(int eId) {
-		for(Vector<Component> components: componentsByEntities){
-			if (components.get(0).getEid() == eId)
-				return components;
-		}
-		return null;
 	}
 }

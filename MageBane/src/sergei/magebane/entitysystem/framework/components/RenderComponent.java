@@ -5,14 +5,14 @@ import android.graphics.Bitmap;
 public class RenderComponent extends Component{
 	public static final String NAME = "RenderComponent";
 	private Bitmap sprite;
-	private float x, y;
-	private int speed;
+	private float x,y;
 	
-	public RenderComponent(Bitmap sprite, int eId){
+	public RenderComponent(Bitmap sprite, int eId, float x, float y){
 		super(NAME, eId);
 		this.sprite = sprite;
+		this.x = x;
+		this.y = y;
 	}
-	
 	
 	public Bitmap getSprite(){
 		return sprite;
@@ -24,23 +24,5 @@ public class RenderComponent extends Component{
 	
 	public float getY(){
 		return y;
-	}
-	
-	public void setPosition(int x, int y){
-		this.x = x;
-		this.y = y;
-	}
-	
-	public void setSPeed(int speed){
-		this.speed = speed;
-	}
-	
-	public void move(float x, float y){
-		this.x += x;
-		this.y += y;
-	}
-	
-	public int getSpeed(){
-		return speed;
 	}
 }

@@ -1,11 +1,12 @@
 package sergei.magebane.entitysystem.Systems;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import sergei.magebane.entitysystem.framework.EntityManager;
 import sergei.magebane.entitysystem.framework.components.Component;
-import sergei.magebane.entitysystem.framework.components.ComponentsByClass;
 import sergei.magebane.entitysystem.framework.components.InputComponent;
+import sergei.magebane.entitysystem.framework.components.MovementComponent;
 import sergei.magebane.entitysystem.framework.components.RenderComponent;
 import sergei.magebane.utils.MathUtil;
 import android.util.Log;
@@ -13,12 +14,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-public class InputSystem extends Thread implements System,OnTouchListener{
+public class InputSystem extends Thread implements MySystem,OnTouchListener{
 	private static final String TAG = "Input System";
 	private static final boolean LEFT_SCREEN = true;
 	private static final boolean RIGHT_SCREEN = false;
-	private static final int MOVE_JOYSTICK_MIN_DIS = 20;
-	private ComponentsByClass componentsByClass;
+	private static final int MOVE_JOYSTICK_MIN_DIS = 50;
 	private EntityManager entityManager;
 	private boolean moveJoystick, attackJoystick;
 	private float moveJoystickStartX, moveJoystickStartY;
@@ -26,11 +26,10 @@ public class InputSystem extends Thread implements System,OnTouchListener{
 	private Vector<Boolean> pointers;
 	private int leftPointers, rightPointers;
 	private boolean finished;
+//	private long lastInfoTime;
 
 	public InputSystem(EntityManager entityManager){
 		this.entityManager = entityManager;
-		componentsByClass = entityManager.getComponentsByClass(InputComponent.NAME);
-
 		pointers = new Vector<Boolean>(10);
 	}
 
@@ -38,38 +37,65 @@ public class InputSystem extends Thread implements System,OnTouchListener{
 	public void run(){
 		finished = false;
 		while(!finished){
-			if (moveJoystick){
-				if (MathUtil.distance(moveJoystickStartX, moveJoystickStartY, moveJoystickCurrX, moveJoystickCurrY) >= MOVE_JOYSTICK_MIN_DIS){
-					for(Component inputComponent: componentsByClass.components){
-						ComponentsByClass renderComponents = entityManager.getComponentsByClass(RenderComponent.NAME);
-						for(Component renderComponent: renderComponents.components){
-							if (renderComponent.getEid() == inputComponent.getEid()){
-								RenderComponent renComponent = (RenderComponent) renderComponent;
+			Vector<HashMap<String, Component>> componentsByEnteties = entityManager.getComponentsByEntities();
+			if (moveJoystick && MathUtil.distance(moveJoystickStartX, moveJoystickStartY, moveJoystickCurrX, moveJoystickCurrY) >= MOVE_JOYSTICK_MIN_DIS){
+				for(HashMap<String, Component> components: componentsByEnteties){
+					InputComponent inputComponent = (InputComponent) components.get(InputComponent.NAME);
+					if (inputComponent != null){
+						MovementComponent movmentComponent = (MovementComponent) components.get(MovementComponent.NAME);
+						if (movmentComponent != null){
 
-								int speed = renComponent.getSpeed();
-								double r = Math.pow(speed, 2);
+							movmentComponent.velocity += movmentComponent.ACCELERATION;
+							if (movmentComponent.velocity > movmentComponent.MAX_SPEED){
+								movmentComponent.velocity = movmentComponent.MAX_SPEED;
+							}
+
+							double r = movmentComponent.velocity;
+							double alpha = MathUtil.hAngle(moveJoystickStartX, moveJoystickStartY, moveJoystickCurrX, moveJoystickCurrY);
+							float moveX = Math.round(r * Math.cos(Math.toRadians(alpha)));
+							float moveY = Math.round(r * Math.sin(Math.toRadians(alpha)));
+
+							movmentComponent.move(moveX, moveY);
+						}
+					}
+				}
+			} else {
+				for(HashMap<String, Component> components: componentsByEnteties){
+					InputComponent inputComponent = (InputComponent) components.get(InputComponent.NAME);
+					if (inputComponent != null){
+						MovementComponent movmentComponent = (MovementComponent) components.get(MovementComponent.NAME);
+						if (movmentComponent != null){
+
+							if (movmentComponent.velocity < 0){
+								movmentComponent.velocity += movmentComponent.ACCELERATION;
+								if (movmentComponent.velocity >= 0){
+									movmentComponent.velocity = 0;
+								}
+							} else {
+								movmentComponent.velocity -= movmentComponent.ACCELERATION;
+								if (movmentComponent.velocity <= 0){
+									movmentComponent.velocity = 0;
+								}
+							}
+
+							if (movmentComponent.velocity > 0){
+								double r = movmentComponent.velocity;
 								double alpha = MathUtil.hAngle(moveJoystickStartX, moveJoystickStartY, moveJoystickCurrX, moveJoystickCurrY);
 								float moveX = Math.round(r * Math.cos(Math.toRadians(alpha)));
 								float moveY = Math.round(r * Math.sin(Math.toRadians(alpha)));
-								
-								renComponent.move(moveX, moveY);
+
+								movmentComponent.move(moveX, moveY);
 							}
 						}
 					}
 				}
 			}
-
 			try {
-				Thread.sleep(40);
+				Thread.sleep(20);
 			} catch (InterruptedException e) {
 				Log.e(TAG,e.toString());
 			}
 		}
-	}
-
-	@Override
-	public void update() {
-		//TODO add position update for all the entities that have Input Component
 	}
 
 
@@ -95,6 +121,9 @@ public class InputSystem extends Thread implements System,OnTouchListener{
 				leftPointers++;
 				if (leftPointers == 1){
 					moveJoystick = true;
+
+//					lastInfoTime = System.currentTimeMillis();
+
 					moveJoystickStartX = e.getX(index);
 					moveJoystickStartY = e.getY(index);
 					moveJoystickCurrX = moveJoystickStartX;
@@ -124,20 +153,20 @@ public class InputSystem extends Thread implements System,OnTouchListener{
 
 			break;
 		}
-		
+
 		try {
 			Thread.sleep(16);
 		} catch (InterruptedException e2) {
 			Log.e(TAG,e.toString());
 		}
-		
+
 		return true;
 	}
 
 	public boolean finished(){
 		return finished;
 	}
-	
+
 	public float getMoveJoystickStartX(){
 		return moveJoystickStartX;
 	}
@@ -153,4 +182,6 @@ public class InputSystem extends Thread implements System,OnTouchListener{
 	public void onPause(){
 		finished = true;
 	}
+
+	@Override public void update() {}
 }

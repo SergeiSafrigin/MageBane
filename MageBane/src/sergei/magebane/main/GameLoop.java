@@ -2,15 +2,18 @@ package sergei.magebane.main;
 
 import java.util.Vector;
 
+import sergei.magebane.entitysystem.Systems.MySystem;
+
 import android.util.Log;
 
 public class GameLoop extends Thread {
 	private static final String TAG = "Game Loop";
-	private static final int FPS = 100;
+	private final int FPS;
 	private boolean finished;
-	private Vector<sergei.magebane.entitysystem.Systems.System> systems;
-
-	public GameLoop(Vector<sergei.magebane.entitysystem.Systems.System> systems){
+	private Vector<MySystem> systems;
+	
+	public GameLoop(Vector<MySystem> systems, int FPS){
+		this.FPS = FPS;
 		this.systems = systems;
 	}
 	
@@ -30,7 +33,7 @@ public class GameLoop extends Thread {
 		while(!finished){
 			startTime = System.currentTimeMillis();
 			
-			for(sergei.magebane.entitysystem.Systems.System system: systems){
+			for(MySystem system: systems){
 				system.update();
 			}
 			

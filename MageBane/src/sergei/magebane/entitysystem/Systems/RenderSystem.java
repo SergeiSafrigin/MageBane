@@ -1,11 +1,12 @@
 package sergei.magebane.entitysystem.Systems;
 
+import java.util.HashMap;
 import java.util.Vector;
-import java.lang.System;
 
 import sergei.magebane.entitysystem.framework.EntityManager;
 import sergei.magebane.entitysystem.framework.components.Component;
 import sergei.magebane.entitysystem.framework.components.HealthComponent;
+import sergei.magebane.entitysystem.framework.components.MovementComponent;
 import sergei.magebane.entitysystem.framework.components.RenderComponent;
 import sergei.magebane.view.GameView;
 import android.graphics.Canvas;
@@ -13,7 +14,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 
-public class RenderSystem implements sergei.magebane.entitysystem.Systems.System{
+public class RenderSystem implements MySystem{
 	private static final String TAG = "Render System";
 	private GameView gameView;
 	private EntityManager entityManager;
@@ -89,24 +90,28 @@ public class RenderSystem implements sergei.magebane.entitysystem.Systems.System
 				//End of Movement Controller
 				
 				
-				Vector<Vector<Component>> componentsByEntities = entityManager.getComponentsByEntities();
+				Vector<HashMap<String, Component>> componentsByEntities = entityManager.getComponentsByEntities();
 				
-				RenderComponent renderComponent = null;
-				HealthComponent healthComponent = null;
-				
-				for(Vector<Component> components: componentsByEntities){
-					for(Component component: components){
-						if (component instanceof RenderComponent)
-							renderComponent = (RenderComponent)component;
-						else if (component instanceof HealthComponent)
-							healthComponent = (HealthComponent)component;
-					}
+				for(HashMap<String, Component> components: componentsByEntities){
+					RenderComponent renderComponent = (RenderComponent) components.get(RenderComponent.NAME);
+					HealthComponent healthComponent = (HealthComponent) components.get(HealthComponent.NAME);
+					MovementComponent movementComponent = (MovementComponent) components.get(MovementComponent.NAME);
 					
 					if (renderComponent != null){
-						canvas.drawBitmap(renderComponent.getSprite(), renderComponent.getX(), renderComponent.getY(), null);
+						float xPos, yPos;
+						if (movementComponent == null){
+							xPos = renderComponent.getX();
+							yPos = renderComponent.getY();
+						} else {
+							xPos = movementComponent.getX();
+							yPos = movementComponent.getY();
+						}
+			
+						canvas.drawBitmap(renderComponent.getSprite(), xPos, yPos, null);
+						
 						if (healthComponent != null){
-							canvas.drawRect(renderComponent.getX(), renderComponent.getY()-50, renderComponent.getX()+healthComponent.getMaxHp(), renderComponent.getY()-30, redPaint);
-							canvas.drawRect(renderComponent.getX(), renderComponent.getY()-50, renderComponent.getX()+healthComponent.getCurHp(), renderComponent.getY()-30, greenPaint);
+							canvas.drawRect(xPos, yPos-50, xPos+healthComponent.getMaxHp(), yPos-30, redPaint);
+							canvas.drawRect(xPos, yPos-50, xPos+healthComponent.getCurHp(), yPos-30, greenPaint);
 						}
 					}
 				}

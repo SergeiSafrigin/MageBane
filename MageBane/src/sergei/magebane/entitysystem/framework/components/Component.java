@@ -1,7 +1,5 @@
 package sergei.magebane.entitysystem.framework.components;
 
-import android.graphics.Bitmap;
-
 public abstract class Component {
 	protected String name;
 	protected int eId;

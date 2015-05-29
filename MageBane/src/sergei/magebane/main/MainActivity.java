@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
 	
 	private void init(Context context){
 		gameView = new GameView(context);
-		world = new World(gameView, getResources());
+		world = new World(getWindowManager(), gameView, getResources());
 	}
 
 	@Override

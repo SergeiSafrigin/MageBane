@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import sergei.magebane.entitysystem.framework.EntityManager;
+import sergei.magebane.entitysystem.framework.components.CameraComponent;
 import sergei.magebane.entitysystem.framework.components.Component;
 import sergei.magebane.entitysystem.framework.components.InputComponent;
 import sergei.magebane.entitysystem.framework.components.MovementComponent;
-import sergei.magebane.entitysystem.framework.components.RenderComponent;
 import sergei.magebane.utils.MathUtil;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -26,7 +26,7 @@ public class InputSystem extends Thread implements MySystem,OnTouchListener{
 	private Vector<Boolean> pointers;
 	private int leftPointers, rightPointers;
 	private boolean finished;
-//	private long lastInfoTime;
+	//	private long lastInfoTime;
 
 	public InputSystem(EntityManager entityManager){
 		this.entityManager = entityManager;
@@ -56,6 +56,11 @@ public class InputSystem extends Thread implements MySystem,OnTouchListener{
 							float moveY = Math.round(r * Math.sin(Math.toRadians(alpha)));
 
 							movmentComponent.move(moveX, moveY);
+							
+							CameraComponent cameraComponent = (CameraComponent) components.get(CameraComponent.NAME);
+							if (cameraComponent != null){
+								cameraComponent.move(moveX, moveY);
+							}
 						}
 					}
 				}
@@ -66,16 +71,9 @@ public class InputSystem extends Thread implements MySystem,OnTouchListener{
 						MovementComponent movmentComponent = (MovementComponent) components.get(MovementComponent.NAME);
 						if (movmentComponent != null){
 
-							if (movmentComponent.velocity < 0){
-								movmentComponent.velocity += movmentComponent.ACCELERATION;
-								if (movmentComponent.velocity >= 0){
-									movmentComponent.velocity = 0;
-								}
-							} else {
-								movmentComponent.velocity -= movmentComponent.ACCELERATION;
-								if (movmentComponent.velocity <= 0){
-									movmentComponent.velocity = 0;
-								}
+							movmentComponent.velocity -= movmentComponent.DECELERATION;
+							if (movmentComponent.velocity <= 0){
+								movmentComponent.velocity = 0;
 							}
 
 							if (movmentComponent.velocity > 0){
@@ -122,7 +120,7 @@ public class InputSystem extends Thread implements MySystem,OnTouchListener{
 				if (leftPointers == 1){
 					moveJoystick = true;
 
-//					lastInfoTime = System.currentTimeMillis();
+					//					lastInfoTime = System.currentTimeMillis();
 
 					moveJoystickStartX = e.getX(index);
 					moveJoystickStartY = e.getY(index);

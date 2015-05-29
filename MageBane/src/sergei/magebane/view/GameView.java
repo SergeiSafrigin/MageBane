@@ -1,8 +1,6 @@
 package sergei.magebane.view;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 

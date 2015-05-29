@@ -6,6 +6,7 @@ public class MovementComponent extends Component{
 	public float x,y;
 	public final float MAX_SPEED = 5.0f;
 	public final float ACCELERATION = 0.1f;
+	public final float DECELERATION = 0.5f;
 	public double velocity = 0.0f;
 	
 	public MovementComponent(int eId, float x, float y, double velocity) {

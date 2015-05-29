@@ -9,16 +9,19 @@ import sergei.magebane.entitysystem.framework.components.HealthComponent;
 import sergei.magebane.entitysystem.framework.components.MovementComponent;
 import sergei.magebane.entitysystem.framework.components.RenderComponent;
 import sergei.magebane.view.GameView;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.RectF;
 
 public class RenderSystem implements MySystem{
 	private static final String TAG = "Render System";
 	private GameView gameView;
 	private EntityManager entityManager;
 	private SystemManager systemManager;
+	private Bitmap background;
 	private Paint redPaint;
 	private Paint greenPaint;
 	private Paint innerCirclePaint;
@@ -29,10 +32,11 @@ public class RenderSystem implements MySystem{
 	private int nextFps;
 	private long startFpsTime;
 
-	public RenderSystem(GameView gameView, EntityManager entityManager, SystemManager systemManager){
+	public RenderSystem(Bitmap background, GameView gameView, EntityManager entityManager, SystemManager systemManager){
 		this.entityManager = entityManager;
 		this.systemManager = systemManager;
 		this.gameView = gameView;
+		this.background = background;
 		
 		redPaint = new Paint();
 		redPaint.setColor(Color.RED);
@@ -73,8 +77,9 @@ public class RenderSystem implements MySystem{
 
 			synchronized (gameView.getHolder()){
 				//draw gray background
-				canvas.drawColor(Color.GRAY);
-				
+//				canvas.drawColor(Color.GRAY);
+				canvas.drawBitmap(background, null, new RectF(0, 0, 1280, 800), null);
+//				canvas.drawBitmap(background, null, new RectF(0, 0, 1280, 800), null);
 				
 				//draw fps
 				canvas.drawText(""+fps, 15, 25, textPaint);
